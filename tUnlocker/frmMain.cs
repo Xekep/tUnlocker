@@ -204,9 +204,9 @@ namespace tUnlocker
                 this.AddToLog("--> Done!");
 
                 // Attempt to patch Terraria.Player.Frame
-                this.AddToLog("Patching Terraria.Player.Frame..");
+                this.AddToLog("Patching Terraria.Player.Frame #1..");
                 var playerFramePattern1 = new[] { OpCodes.Ldsfld, OpCodes.Ldarg_0, OpCodes.Ldfld, OpCodes.Bne_Un };
-                var playerFramePattern2 = new[] { OpCodes.Ldarg_0, OpCodes.Ldfld, OpCodes.Brfalse_S, OpCodes.Ldarg_0 };
+                var playerFramePattern2 = new[] { OpCodes.Ldarg_0, OpCodes.Ldfld, OpCodes.Ldc_I4_S, OpCodes.Bne_Un_S };
                 var playerFrameOffset1 = playerFrame.ScanForPattern(0, playerFramePattern1);
                 var playerFrameOffset2 = playerFrame.ScanForPattern(0, playerFramePattern2);
                 if (playerFrameOffset1 == -1 || playerFrameOffset2 == -1)
@@ -217,20 +217,17 @@ namespace tUnlocker
                 playerFrame.RemoveRange(playerFrameOffset1, playerFrameOffset2 - playerFrameOffset1);
                 this.AddToLog("--> Done!");
 
-                // Attempt to patch Terraria.Player.Update #1..
                 this.AddToLog("Patching Terraria.Player.Update #1..");
-                // if (this.wings == 3 && Main.myPlayer == this.whoAmi)
-                // {
-                //     num6 = 0.0f;
-                // }
-                var playerUpdatePattern1 = new[] { OpCodes.Ldarg_0, OpCodes.Ldfld, OpCodes.Ldc_I4_3, OpCodes.Bne_Un_S, OpCodes.Ldsfld, OpCodes.Ldarg_0, OpCodes.Ldfld, OpCodes.Bne_Un_S, OpCodes.Ldc_R4, OpCodes.Stloc_S };
+                //if (this.wingsLogic == 3 && Main.myPlayer == this.whoAmi)
+                //    this.accRunSpeed = 0.0f;
+                var playerUpdatePattern1 = new[] { OpCodes.Ldarg_0, OpCodes.Ldfld, OpCodes.Ldc_I4_3, OpCodes.Bne_Un_S, OpCodes.Ldsfld, OpCodes.Ldarg_0, OpCodes.Ldfld, OpCodes.Bne_Un_S, OpCodes.Ldarg_0, OpCodes.Ldc_R4, OpCodes.Stfld };
                 var playerUpdateOffset1 = playerUpdate.ScanForPattern(0, playerUpdatePattern1);
                 if (playerUpdateOffset1 == -1)
                 {
                     this.AddToLog("--> Failed!");
                     return;
                 }
-                playerUpdate.ReplaceNops(playerUpdateOffset1 + playerUpdatePattern1.Length - 2, 2);
+                playerUpdate.ReplaceNops(playerUpdateOffset1, playerUpdatePattern1.Length);
                 this.AddToLog("--> Done!");
 
                 // Attempt to patch Terraria.Player.Update #2..
@@ -248,7 +245,7 @@ namespace tUnlocker
                     this.AddToLog("--> Failed!");
                     return;
                 }
-                playerUpdate.ReplaceNops(playerUpdateOffset2 + 24, 10);
+                playerUpdate.ReplaceNops(playerUpdateOffset2 + 24, 11);
                 this.AddToLog("--> Done!");
 
                 // Attempt to patch Terraria.Player.Update #3..
@@ -268,7 +265,7 @@ namespace tUnlocker
                 playerUpdate.ReplaceNops(playerUpdateOffset3 + 24, 6);
                 this.AddToLog("--> Done!");
 
-                // Attempt to patch Terraria.Player.Update #3..
+                // Attempt to patch Terraria.Steam #1
                 this.AddToLog("Patching Steam.Init & Steam.Kill..");
                 steamInit.Body.Instructions[0].OpCode = OpCodes.Ldc_I4_1;
                 steamInit.Body.Instructions[0].Operand = null;
@@ -281,6 +278,8 @@ namespace tUnlocker
                 {
                     // Write the new assembly to our memory stream..
                     asm.Write(mStream);
+
+                    File.WriteAllBytes("derp.exe", mStream.GetBuffer());
 
                     // If launching exit now..
                     if (launch)
