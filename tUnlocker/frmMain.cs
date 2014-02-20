@@ -172,6 +172,16 @@ namespace tUnlocker
                 }
                 this.AddToLog("--> Done!");
 
+                // Locate Terraria.Player.ItemCheck..
+                this.AddToLog("Locating Terraria.Player.ItemCheck..");
+                var playerItemCheck = asm.GetMethod("Player", "ItemCheck");
+                if (playerItemCheck == null)
+                {
+                    this.AddToLog("--> Failed!");
+                    return;
+                }
+                this.AddToLog("--> Done!");
+
                 // Locate Terraria.Steam.Init and Terraria.Steam.Kill..
                 this.AddToLog("Locating Steam.Init & Steam.Kill..");
                 var steamInit = asm.GetMethod("Steam", "Init");
@@ -263,6 +273,18 @@ namespace tUnlocker
                     return;
                 }
                 playerUpdate.ReplaceNops(playerUpdateOffset3 + 24, 6);
+                this.AddToLog("--> Done!");
+
+                // Attempt to patch Terraria.Player.ItemCheck #1..
+                this.AddToLog("Patching Terraria.Player.ItemCheck #1..");
+                var playerItemCheckPattern1 = new[] { OpCodes.Ldarg_0, OpCodes.Ldfld, OpCodes.Ldsfld, OpCodes.Bne_Un, OpCodes.Ldarg_0, OpCodes.Ldc_I4_S, OpCodes.Ldc_I4, OpCodes.Ldc_I4_1 };
+                var playerItemCheckOffset1 = playerItemCheck.ScanForPattern(0, playerItemCheckPattern1);
+                if (playerItemCheckOffset1 == -1)
+                {
+                    this.AddToLog("--> Failed!");
+                    return;
+                }
+                playerItemCheck.ReplaceNops(playerItemCheckOffset1, 59);
                 this.AddToLog("--> Done!");
 
                 // Attempt to patch Terraria.Steam #1
