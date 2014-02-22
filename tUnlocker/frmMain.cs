@@ -33,6 +33,7 @@ namespace tUnlocker
         public frmMain()
         {
             InitializeComponent();
+            this.lblVersion.Text = "Version: " + Assembly.GetExecutingAssembly().GetName().Version.ToString();
         }
 
         /// <summary>
