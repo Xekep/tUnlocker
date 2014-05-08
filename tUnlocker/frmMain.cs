@@ -202,8 +202,8 @@ namespace tUnlocker
 
                 // Attempt to patch Terraria.Main.Draw
                 this.AddToLog("Patching Terraria.Main.Draw..");
-                var drawPattern1 = new[] { OpCodes.Ldsfld, OpCodes.Ldloc_S, OpCodes.Bne_Un, OpCodes.Ldc_I4_0, OpCodes.Stloc_S, OpCodes.Ldsfld, OpCodes.Ldloc_S, OpCodes.Ldelem_Ref, OpCodes.Ldfld, OpCodes.Ldc_I4_3, OpCodes.Beq_S };
-                var drawPattern2 = new[] { OpCodes.Ldsfld, OpCodes.Ldloc_S, OpCodes.Ldelem_Ref, OpCodes.Ldfld, OpCodes.Ldc_I4_S, OpCodes.Bne_Un_S };
+                var drawPattern1 = new[] { OpCodes.Ldsfld, OpCodes.Ldloc_S, OpCodes.Bne_Un, OpCodes.Ldc_I4_0, OpCodes.Stloc_S, OpCodes.Ldloc_S, OpCodes.Ldfld, OpCodes.Ldc_I4_3, OpCodes.Beq_S }; // { OpCodes.Ldsfld, OpCodes.Ldloc_S, OpCodes.Bne_Un, OpCodes.Ldc_I4_0, OpCodes.Stloc_S, OpCodes.Ldsfld, OpCodes.Ldloc_S, OpCodes.Ldelem_Ref, OpCodes.Ldfld, OpCodes.Ldc_I4_3, OpCodes.Beq_S };
+                var drawPattern2 = new[] { OpCodes.Ldloc_S, OpCodes.Ldfld, OpCodes.Ldc_I4_S, OpCodes.Bne_Un_S, OpCodes.Ldloc_S, OpCodes.Ldfld, OpCodes.Ldc_I4_S, OpCodes.Bne_Un_S }; //{ OpCodes.Ldsfld, OpCodes.Ldloc_S, OpCodes.Ldelem_Ref, OpCodes.Ldfld, OpCodes.Ldc_I4_S, OpCodes.Bne_Un_S };
                 var drawOffset1 = mainDraw.ScanForPattern(0, drawPattern1);
                 var drawOffset2 = mainDraw.ScanForPattern(drawOffset1, drawPattern2);
                 if (drawOffset1 == -1 || drawOffset2 == -1)
@@ -227,7 +227,7 @@ namespace tUnlocker
                 }
                 playerFrame.RemoveRange(playerFrameOffset1, playerFrameOffset2 - playerFrameOffset1);
                 this.AddToLog("--> Done!");
-
+                
                 this.AddToLog("Patching Terraria.Player.Update #1..");
                 //if (this.wingsLogic == 3 && Main.myPlayer == this.whoAmi)
                 //    this.accRunSpeed = 0.0f;
@@ -256,9 +256,9 @@ namespace tUnlocker
                     this.AddToLog("--> Failed!");
                     return;
                 }
-                playerUpdate.ReplaceNops(playerUpdateOffset2 + 24, 11);
+                playerUpdate.ReplaceNops(playerUpdateOffset2 + 24, 15);
                 this.AddToLog("--> Done!");
-
+                
                 // Attempt to patch Terraria.Player.Update #3..
                 this.AddToLog("Patching Terraria.Player.Update #3..");
                 // if (Main.myPlayer == this.whoAmi && (this.wings == 3 || this.wings == 16 || this.wings == 17 || this.wings == 18 || this.wings == 19))
@@ -287,7 +287,7 @@ namespace tUnlocker
                 }
                 playerItemCheck.ReplaceNops(playerItemCheckOffset1, 59);
                 this.AddToLog("--> Done!");
-
+                
                 // Attempt to patch Terraria.Steam #1
                 this.AddToLog("Patching Steam.Init & Steam.Kill..");
                 steamInit.Body.Instructions[0].OpCode = OpCodes.Ldc_I4_1;
